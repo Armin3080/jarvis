@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS - AI Assistant</title>
+    <meta name="description" content="JARVIS AI Assistant with voice recognition">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="avatar.png" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Initializing JARVIS OS</div>
+            <div class="loader-progress">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="loader-version">v2.1.0</div>
+        </div>
+    </div>
+
+    <main class="main-container" id="main-content">
+        <div class="glass-panel">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">J</div>
+                    <div class="logo-text">ARVIS</div>
+                </div>
+                <div class="system-info">
+                    <div class="info-item">
+                        <i class="fas fa-microchip"></i>
+                        <span>AI Core Online</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-network-wired"></i>
+                        <span>Systems Nominal</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="assistant-view">
+                <div class="holographic-display">
+                    <div class="hologram-container">
+                        <img src="hologram.gif" alt="JARVIS Hologram" class="hologram">
+                        <div class="hologram-effect"></div>
+                    </div>
+                    <div class="status-lights">
+                        <div class="light ai-light"></div>
+                        <div class="light voice-light"></div>
+                        <div class="light system-light"></div>
+                    </div>
+                </div>
+
+                <div class="voice-interface">
+                    <div class="voice-response" id="voiceResponse">
+                        <div class="response-text" id="responseText">JARVIS initializing...</div>
+                    </div>
+                    
+                    <div class="voice-input">
+                        <button class="voice-btn" id="voiceBtn">
+                            <i class="fas fa-microphone"></i>
+                            <span class="pulse-ring"></span>
+                        </button>
+                        <div class="voice-status" id="voiceStatus">Ready</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard">
+                <div class="dashboard-card commands-card">
+                    <div class="card-header">
+                        <i class="fas fa-terminal"></i>
+                        <h3>Available Commands</h3>
+                    </div>
+                    <div class="card-content">
+                        <ul class="commands-list">
+                            <li>"Hey JARVIS" - Activate assistant</li>
+                            <li>"What can you do?" - List capabilities</li>
+                            <li>"Tell me a joke" - Get a random joke</li>
+                            <li>"Calculate..." - Perform calculations</li>
+                            <li>"Set reminder..." - Create a reminder</li>
+                            <li>"Change mode to..." - Change system mode</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card system-card">
+                    <div class="card-header">
+                        <i class="fas fa-cogs"></i>
+                        <h3>System Status</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="system-stats">
+                            <div class="stat-item">
+                                <label>Voice Recognition</label>
+                                <div class="stat-value active" id="recognitionStatus">Active</div>
+                            </div>
+                            <div class="stat-item">
+                                <label>Response Time</label>
+                                <div class="stat-value" id="responseTime">0.0s</div>
+                            </div>
+                            <div class="stat-item">
+                                <label>Current Mode</label>
+                                <div class="stat-value" id="currentMode">Normal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="command-history" id="commandHistory">
+            <div class="history-header">
+                <h3><i class="fas fa-history"></i> Interaction History</h3>
+                <button class="clear-btn" id="clearHistoryBtn">Clear</button>
+            </div>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </main>
+
+    <!-- Audio Elements -->
+    <audio id="activationSound" src="activate.mp3"></audio>
+    <audio id="responseSound" src="response.mp3"></audio>
+    <audio id="errorSound" src="error.mp3"></audio>
+
+    <!-- JS -->
+    <script src="app.js"></script>
+</body>
+</html>
