@@ -6,7 +6,7 @@ const config = {
   defaultLang: "en-US",
   ttsSettings: {
     rate: 1,
-    volume: 1,
+    volume: 100,
     pitch: 1
   }
 };
