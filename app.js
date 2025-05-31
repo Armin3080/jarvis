@@ -6,21 +6,16 @@ const config = {
   defaultLang: "en-US",
   ttsSettings: {
     rate: 1,
-    volume: 100,
+    volume: 80,
     pitch: 1
   }
 };
 
-// DOM Elements
+// DOM Elements (minimal for audio-only)
 const elements = {
   voiceBtn: document.getElementById('voiceBtn'),
-  responseText: document.getElementById('responseText'),
   voiceStatus: document.getElementById('voiceStatus'),
-  historyList: document.getElementById('historyList'),
-  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
   recognitionStatus: document.getElementById('recognitionStatus'),
-  responseTime: document.getElementById('responseTime'),
-  currentMode: document.getElementById('currentMode'),
   loader: document.getElementById('loader'),
   mainContent: document.getElementById('main-content')
 };
@@ -31,10 +26,8 @@ const systemState = {
   isSpeaking: false,
   currentMode: "normal", // normal, silent, sleep
   userPreferences: {
-    darkMode: true,
     voiceGender: "male"
-  },
-  interactionHistory: []
+  }
 };
 
 // Initialize Speech Synthesis
@@ -56,11 +49,10 @@ function initSpeechSynthesis() {
   });
 }
 
-// Text-to-Speech Function
+// Text-to-Speech Function (audio only)
 async function speak(text, settings = {}) {
   return new Promise((resolve) => {
     if (systemState.currentMode === "silent") {
-      updateResponseText(text);
       return resolve();
     }
 
@@ -82,7 +74,6 @@ async function speak(text, settings = {}) {
       ) || voices[0];
     }
 
-    // Events
     utterance.onend = () => {
       systemState.isSpeaking = false;
       resolve();
@@ -91,64 +82,16 @@ async function speak(text, settings = {}) {
     utterance.onerror = (e) => {
       console.error('Speech error:', e);
       systemState.isSpeaking = false;
-      showError('Speech synthesis error');
       resolve();
     };
 
-    updateResponseText(text);
     window.speechSynthesis.speak(utterance);
   });
 }
 
-// Update response text
-function updateResponseText(text) {
-  elements.responseText.textContent = text;
-  addToHistory(text, 'response');
-}
-
-// Show error message
+// Show error message (audio only)
 function showError(message) {
-  elements.voiceStatus.textContent = message;
-  elements.voiceStatus.style.color = '#ef4444';
-  setTimeout(() => {
-    elements.voiceStatus.textContent = 'Ready';
-    elements.voiceStatus.style.color = '';
-  }, 3000);
-}
-
-// Add interaction to history
-function addToHistory(content, type) {
-  const timestamp = new Date().toLocaleTimeString();
-  const historyItem = {
-    content,
-    type,
-    timestamp
-  };
-  
-  systemState.interactionHistory.push(historyItem);
-  renderHistoryItem(historyItem);
-}
-
-// Render history item
-function renderHistoryItem(item) {
-  const historyItem = document.createElement('div');
-  historyItem.className = `history-item ${item.type}`;
-  
-  historyItem.innerHTML = `
-    <i class="fas ${item.type === 'command' ? 'fa-microphone' : 'fa-robot'}"></i>
-    <div class="history-item-content">
-      <div class="history-item-text">${item.content}</div>
-      <div class="history-item-time">${item.timestamp}</div>
-    </div>
-  `;
-  
-  elements.historyList.prepend(historyItem);
-}
-
-// Clear history
-function clearHistory() {
-  systemState.interactionHistory = [];
-  elements.historyList.innerHTML = '';
+  speak(message);
 }
 
 // Set Reminder function
@@ -161,14 +104,12 @@ function setReminder(time, text) {
 // Calculator function
 function calculate(expression) {
   try {
-    // Replace words with operators
     const cleanedExp = expression
       .replace(/plus/g, '+')
       .replace(/minus/g, '-')
       .replace(/times/g, '*')
       .replace(/divided by/g, '/');
     
-    // Safe evaluation
     const result = Function(`return (${cleanedExp})`)();
     return result.toString();
   } catch {
@@ -202,7 +143,6 @@ const commands = {
     const validModes = ["normal", "silent", "sleep"];
     if (validModes.includes(mode)) {
       systemState.currentMode = mode;
-      elements.currentMode.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
       return `Mode changed to ${mode}`;
     }
     return "Invalid mode. Please try normal, silent or sleep";
@@ -217,37 +157,27 @@ const commands = {
   }
 };
 
-// Process user command
+// Process user command (audio only)
 async function processCommand(command) {
   const startTime = performance.now();
   
-  // Add command to history
-  addToHistory(command, 'command');
-  
-  // Check for exact matches first
   for (const [pattern, action] of Object.entries(commands)) {
     const regex = new RegExp(`^${pattern}$`, 'i');
     if (regex.test(command)) {
       const response = await action();
-      const endTime = performance.now();
-      elements.responseTime.textContent = `${((endTime - startTime)/1000).toFixed(2)}s`;
       return response;
     }
   }
   
-  // Check for partial matches
   for (const [pattern, action] of Object.entries(commands)) {
     const regex = new RegExp(pattern, 'i');
     const match = command.match(regex);
     if (match) {
       const response = await action(...match.slice(1));
-      const endTime = performance.now();
-      elements.responseTime.textContent = `${((endTime - startTime)/1000).toFixed(2)}s`;
       return response;
     }
   }
   
-  // Default response for unknown commands
   return "I didn't understand that. Try saying 'What can you do?' for a list of commands.";
 }
 
@@ -255,10 +185,8 @@ async function processCommand(command) {
 function initVoiceRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    showError('Voice recognition not supported');
+    speak('Voice recognition not supported');
     elements.voiceBtn.disabled = true;
-    elements.recognitionStatus.textContent = 'Unsupported';
-    elements.recognitionStatus.classList.remove('active');
     return null;
   }
 
@@ -270,19 +198,16 @@ function initVoiceRecognition() {
   recognition.onstart = () => {
     systemState.isListening = true;
     elements.voiceBtn.classList.add('listening');
-    elements.voiceStatus.textContent = "Listening...";
     document.getElementById('activationSound').play();
   };
 
   recognition.onend = () => {
     systemState.isListening = false;
     elements.voiceBtn.classList.remove('listening');
-    elements.voiceStatus.textContent = "Ready";
   };
 
   recognition.onerror = (event) => {
     console.error('Recognition error:', event.error);
-    showError(`Error: ${event.error}`);
     document.getElementById('errorSound').play();
     recognition.onend();
   };
@@ -299,7 +224,7 @@ function initVoiceRecognition() {
 
 // Initialize System
 async function initializeSystem() {
-  // Hide loader after 2 seconds
+  // Hide loader after initialization
   setTimeout(() => {
     elements.loader.style.opacity = '0';
     setTimeout(() => {
@@ -311,9 +236,7 @@ async function initializeSystem() {
   // Initialize speech synthesis
   const ttsSupported = await initSpeechSynthesis();
   if (!ttsSupported) {
-    showError('Speech synthesis not supported');
-    elements.recognitionStatus.textContent = 'Limited';
-    elements.recognitionStatus.classList.remove('active');
+    speak('Speech synthesis not supported');
   }
 
   // Initialize voice recognition
@@ -327,8 +250,6 @@ async function initializeSystem() {
       }
     });
   }
-
-  elements.clearHistoryBtn.addEventListener('click', clearHistory);
 
   // Initial greeting
   await speak(`${config.name} initialized. Version ${config.version}. How can I assist you?`);
